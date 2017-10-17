@@ -1,6 +1,8 @@
 package com.coolweather.android;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -67,6 +69,10 @@ public class ChooseFragment extends Fragment {
         return view;
     }
 
+    /**
+     * 处理省市3级列表页面点击事件
+     * @param savedInstanceState
+     */
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -79,6 +85,11 @@ public class ChooseFragment extends Fragment {
                 } else if (currentLevel == LEVEL_CITY) {
                     selectCity = cityList.get(position);
                     countyQuery();
+                }else if (currentLevel == LEVEL_COUNTY) {
+                    Intent intent = new Intent(getContext(), WeatherActivity.class);
+                    intent.putExtra("weather_id", countyList.get(position).getWeatherId());
+                    startActivity(intent);
+                    getActivity().finish();
                 }
             }
         });
