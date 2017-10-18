@@ -23,6 +23,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.coolweather.android.gson.DailyForecast;
 import com.coolweather.android.gson.Weather;
+import com.coolweather.android.service.AutoUpdateService;
 import com.coolweather.android.util.HttpUtil;
 import com.coolweather.android.util.Utility;
 
@@ -112,6 +113,13 @@ public class WeatherActivity extends AppCompatActivity {
                 drawerLayout.openDrawer(GravityCompat.START);
             }
         });
+        titleCity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.openDrawer(GravityCompat.START);
+            }
+        });
+
     }
 
 
@@ -138,7 +146,6 @@ public class WeatherActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         if (weather != null && "ok".equals(weather.status)) {
-                            Log.d(TAG, "run:  "+weather.forecastList.get(0).date);
                             SharedPreferences.Editor editor = PreferenceManager
                                     .getDefaultSharedPreferences(WeatherActivity.this).edit();
                             editor.putString("weather", responseText);
@@ -160,12 +167,17 @@ public class WeatherActivity extends AppCompatActivity {
      * @param weather
      */
     private void showWeatherInfo(Weather weather) {
+        Intent autoUpdateIntent = new Intent(this, AutoUpdateService.class);
+        startService(autoUpdateIntent);
         titleCity.setText(weather.basic.city);
         titleTime.setText(weather.basic.update.date.split(" ")[1]);
         nowTmp.setText(weather.now.tmp+"℃");
         nowTxt.setText(weather.now.condition.txt);
-        aqiAqi.setText(weather.aqi.city.aqi);
-        aqiPm25.setText(weather.aqi.city.pm25);
+        if (weather.aqi != null) {
+            aqiPm25.setText(weather.aqi.city.pm25);
+            aqiAqi.setText(weather.aqi.city.aqi);
+        }
+        forecastLayout.removeAllViews();
         for (DailyForecast forecast : weather.forecastList) {
             View view = LayoutInflater.from(this).inflate(R.layout.forecast_item, forecastLayout, false);
             TextView forecastDate = (TextView) view.findViewById(R.id.forecast_date);
